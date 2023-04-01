@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Expense Report</title>
+    <style>
+		body {
+			font-family: Arial, sans-serif;
+			background-color: #f2f2f2;
+		}
+    </style>
+</head>
+<body>
+    <h1>Expense Report</h1>
+    <p>Here's a chart of your expenses by category:</p>
+    {% if chart_path %}
+        <img src="{{ url_for('static', filename=chart_path) }}" alt="Expense Chart">
+    {% else %}
+        <p>No chart to display.</p>
+    {% endif %}
+</body>
+</html>
