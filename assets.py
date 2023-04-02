@@ -33,5 +33,16 @@ asset_universe = {
     "BIRD": {"Ccy": "USDSGD=X", "Class": "Investment", "Name": "Allbirds"},
     "VET": {"Ccy": "USDSGD=X", "Class": "Investment", "Name": "Vermilon Energy"},
     "ARCH": {"Ccy": "USDSGD=X", "Class": "Investment", "Name": "Arch Resources"},
-
+    "Venture_asset_1": {"Ccy": "USDSGD=X", "Class": "Venture", "Name": "Venture_asset_1"},
+    "Venture_asset_2": {"Ccy": "USDSGD=X", "Class": "Venture", "Name": "Venture_asset_2"}
 }
+
+### EXTRACTING THE LIST OF INVESTMENTS IN ASSET UNIVERSE
+asset_universe_inv = {k:v for (k,v) in asset_universe.items() if "Investment" in v["Class"] or "Venture" in v["Class"]}
+investments = asset_universe_inv.keys()
+
+### EXTRACTING THE LIST OF UK STOCKS IN ASSET UNIVERSE
+uk_stocks_dict = {k:v for (k,v) in asset_universe.items() if "GBPSGD=X" in v["Ccy"] and "Investment" in v["Class"]}
+uk_stocks = list(uk_stocks_dict.keys())
+uk_stocks
+

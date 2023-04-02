@@ -3,15 +3,14 @@ from google.auth.transport.requests import Request
 from google.oauth2.credentials import Credentials
 #from google.oauth2.service_account import Credentials
 import googleapiclient.discovery
+from datetime import date, datetime, timedelta
+
 
 from googleapiclient.discovery import build
 from googleapiclient.errors import HttpError
 import google.auth.exceptions
 from google.auth.transport.requests import Request
 from google_auth_oauthlib.flow import InstalledAppFlow
-
-import base64
-from email.mime.text import MIMEText
 
 import base64
 import os.path
@@ -23,6 +22,10 @@ from email.mime.text import MIMEText
 from email.mime.image import MIMEImage
 import json
 import pickle
+
+from assets import fx_universe, asset_universe, investments, uk_stocks
+from units_summary import units_summary
+from historical_positions import historical_portfolio
 
 SCOPES = ['https://www.googleapis.com/auth/gmail.readonly', 'https://www.googleapis.com/auth/gmail.send', 'https://www.googleapis.com/auth/spreadsheets.readonly']
 
@@ -44,7 +47,7 @@ if not creds or not creds.valid:
     with open('token.json', 'w') as token:
         token.write(creds.to_json())
 
-def get_spreadsheet_data(spreadsheet_url):
+def get_tx_spreadsheet_data(spreadsheet_url):
 
     service = googleapiclient.discovery.build('sheets', 'v4', credentials=creds)
     # Get the spreadsheet ID from the URL
@@ -54,20 +57,42 @@ def get_spreadsheet_data(spreadsheet_url):
     sheet = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=sheet_name).execute()
     # Convert the data to a Pandas DataFrame
     values = sheet.get('values', [])
-    df = pd.DataFrame(values[1:], columns=values[0])
+    tx_df = pd.DataFrame(values[1:], columns=values[0])
 
-    return df
+    return tx_df
 
-def generate_chart_image(df):
+def get_custom_px_spreadsheet_data(spreadsheet_url):
+
+    service = googleapiclient.discovery.build('sheets', 'v4', credentials=creds)
+    # Get the spreadsheet ID from the URL
+    spreadsheet_id = spreadsheet_url.split('/')[-2]
+    # Get the data from the first sheet
+    sheet_name = 'Custom_Prices'
+    sheet = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=sheet_name).execute()
+    # Convert the data to a Pandas DataFrame
+    values = sheet.get('values', [])
+    custom_px_df = pd.DataFrame(values[1:], columns=values[0])
+
+    return custom_px_df
+
+def units_history(tx_df, date_range, hist_ptf_df):
+    units_summary_df = units_summary(tx_df, date_range, hist_ptf_df)
+    return units_summary_df
+
+def get_NAV(tx_df, date_range, hist_ptf_df):
+    list_values_NAV = units_history(tx_df = tx_df, date_range = date_range, hist_ptf_df = hist_ptf_df)['unit price'].tolist()
+    return list_values_NAV
+
+def generate_nav_chart_image(dates, nav_prices):
 
     plt.switch_backend('Agg')
-    plt.bar(df['Category'], df['Amount'])
-    plt.xlabel('Category')
-    plt.ylabel('Amount')
-    plt.title('Expenses by Category')
-    chart_path = 'chart.png'
-    plt.savefig(chart_path)
-    return chart_path
+    plt.plot(dates, nav_prices)
+    plt.xlabel('Date')
+    plt.ylabel('NAV')
+    plt.title('NAV evolution')
+    nav_chart_path = 'static/nav_chart.png'
+    plt.savefig(nav_chart_path)
+    return nav_chart_path
 
 
 def send_email(to, subject, body, image_path):
