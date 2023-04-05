@@ -1,0 +1,440 @@
+
+{% extends 'base.html' %}
+
+
+{% block content %}
+
+<head>
+    <meta charset="UTF-8">
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+
+        body {
+            padding: 20px;
+            }
+
+        /* header {
+            background-color: #2f2f2f;
+            color: #fff;
+            padding: 10px;
+            text-align: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+
+        } */
+/* 
+        h1 {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 3em;
+            font-weight: 300;
+            letter-spacing: 2px;
+        }
+
+        h3 {
+            margin-top: 50px;
+            text-align: center;
+            font-size: 1em;
+            font-weight: 250;
+            letter-spacing: 2px;
+        } */
+
+        p {
+            margin: 20px auto;
+            max-width: 100%;
+            font-size: 1em;
+            line-height: 1.5em;
+            text-align: left;
+        }
+
+        canvas {
+            width: 80%;
+            height: 100%;
+            margin: 20px auto;
+            display: block;
+            }
+
+        .reminder {
+            background-color: #f2f2f2;
+            padding: 10px;
+            }
+
+        .short {
+            line-height: 0.8em;
+            margin: 5px auto;
+        }
+        table {
+        border-collapse: collapse;
+        width: 100%;
+        margin-bottom: 1rem;
+        color: #212529;
+        font-size: 0.9rem;
+        font-weight: 400;
+        line-height: 1.6;
+        }
+
+        th,
+        td {
+            padding: 0.75rem;
+            vertical-align: middle;
+            border-top: 1px solid #dee2e6;
+        }
+
+        th {
+            background-color: #f8f9fa;
+            font-weight: 500;
+            text-align: left;
+            border-bottom: 2px solid #dee2e6;
+        }
+
+        tbody tr:nth-of-type(even) {
+            background-color: #f2f2f2;
+        }
+
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+
+</head>
+<body>
+    <br>
+    <header>
+        <h1>Report - {{content.portfolio_name}} - {{content.today}}</h1>
+    </header>
+
+
+    <br><br>
+    <h2>Daily Comment</h2>
+    <div class="container">
+    <div>
+        {{ content.daily_comments }}
+    </div>      
+    </div>
+
+    <br><br>
+    <h2>Performance</h2>
+    <div class="container">
+        
+        <p class="short">Portfolio perf: {{ "{:.2%}".format(content.perf_ptf) }} vs Benchmark perf: {{ "{:.2%}".format(content.perf_bench) }} (since {{ content.date_range_no_datetime[0] }})</p>
+        <p class="short">Porfolio's volatility: {{ content.ptf_volatility|round(1) }} vs Benchmark's volatility: {{ content.bench_volatility|round(1) }}</p>
+        <p class="short">Portfolio sharpe ratio: {{ content.sharpe_ratio_ptf|round(2) }} vs Benchmark sharpe ratio: {{ content.sharpe_ratio_bench|round(2) }}</p>
+
+        <p class="reminder">REMINDER / Sharpe ratio = additional units of excess performance (over risk-free rate) by unit of risk (here risk is represented by standard deviation of prices)</p>
+                
+        <!-- {% if content.perf_ptf >= content.perf_bench %}
+        <p>You are outperforming your benchmark, wow! 😮</p>
+        {% else %}
+        <p>You are not yet outperforming your benchmark, but that's ok we are help to achieving that.</p>
+        {% endif %} -->
+        
+    </div>
+
+    <h3>Here's a chart of your wealth portfolio performance (appreciation of a portfolio unit net asset value):</h3>
+
+    <canvas id="NAV_Chart"></canvas>
+
+    <h3>Here's a chart of your gains in SGD$:</h3>
+
+    <canvas id="Gains_Chart"></canvas>
+
+    <h2>Performance contributors</h2>
+
+    <p class="short">Your top 3 contributors are:</p>
+    <p class="short">This is what you wrote when you bought them. Is that a suprise?</p>
+    <p class="short">Your top 3 detractors are:</p>
+    <p class="short">This is what you wrote when you bought them. Is that a suprise?</p>
+
+    <canvas id="contribs"></canvas>
+
+    <h2>Asset Allocation</h2>
+    <p class="short">Your top 3 assets are:</p>
+    <p class="short">This is what you wrote when you bought them. Is that still valid?</p>
+
+    <canvas id="ptf_today"></canvas>
+
+    <h2>Correlations Analytics</h2>
+    <p class="short">Your top 3 most correlated benchmarks are: {{ content.corr_list.index[0] }}, {{ content.corr_list.index[1] }}, {{ content.corr_list.index[2] }}.</p>
+    <p class="short">Your top 3 least correlated benchmarks are: {{ content.corr_list.index[-1] }}, {{ content.corr_list.index[-2] }}, {{ content.corr_list.index[-3] }}.
+        Could be interesting maybe to consider one of these to lower portfolio volatility and / or if you anticipate a macro trend reversion.
+    </p>
+    <h3>Here's a correlation matrix showing correlations between your portfolio and other benchmarks:</h3>
+    <br>
+    <div style="display:flex; justify-content:center;">
+
+        <!-- <div class="container">
+            {{ content.corr_matrix | safe }}
+        </div> -->
+        <div class="table-responsive">
+            <table class="table table-striped table-hover">
+                <thead>
+                  <tr>
+                    <th></th>
+                    {% for column in content.corr_matrix.columns %}
+                      <th>{{ column }}</th>
+                    {% endfor %}
+                  </tr>
+                </thead>
+                <tbody>
+                  {% for index, row in content.corr_matrix.iterrows() %}
+                    <tr>
+                      <th>{{ index }}</th>
+                      {% for value in row.values %}
+                        <td>{{ '%.2f' % value }}</td>
+                      {% endfor %}
+                    </tr>
+                  {% endfor %}
+                </tbody>
+              </table>
+        </div>
+    </div>
+
+    <h2>Upcoming earnings dates</h2>
+    <br>
+
+    {% for k, v in content.sorted_earnings_dates.items() %}
+
+    - {{ k }}: {{ v }} <br>
+
+    {% endfor %}
+
+
+
+
+    
+    <script>
+
+        // ###### NAV CHART #########
+        const NAV_Chart_ctx = document.getElementById('NAV_Chart');
+
+        new Chart(NAV_Chart_ctx, {
+            type: 'line',
+            data: {
+                labels: [{% for item in content.date_range_no_datetime %}
+                    "{{item}}",
+                    {% endfor %}],
+                datasets: [{
+                    label: 'You',
+                    data: [{% for item in content.list_values_NAV %}
+                        "{{item}}",
+                        {% endfor %}],
+                    borderWidth: 2,
+                    borderColor: 'purple',
+                    backgroundColor: 'rgba(47, 47, 47, 0.2)',
+                    pointBackgroundColor: 'purple',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                },
+                {
+                    label: 'Benchmark',
+                    data: [{% for item in content.list_values_SP500 %}
+                        "{{item}}",
+                        {% endfor %}],
+                    borderWidth: 1,
+                    borderColor: '#2f2f2f',
+                    backgroundColor: 'rgba(47, 47, 47, 0.2)',
+                    pointBackgroundColor: '#2f2f2f',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                }
+            ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            font: {
+                                family: 'Roboto',
+                                size: 14
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                family: 'Roboto',
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                family: 'Roboto',
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+        // ###### Gains CHART #########
+        const Gains_Chart_ctx = document.getElementById('Gains_Chart');
+
+        new Chart(Gains_Chart_ctx, {
+            type: 'line',
+            data: {
+                labels: [{% for item in content.date_range_no_datetime %}
+                    "{{item}}",
+                    {% endfor %}],
+                datasets: [{
+                    label: 'P&L in SGD$',
+                    data: [{% for item in content.cumul_gains %}
+                        "{{item}}",
+                        {% endfor %}],
+                    borderWidth: 2,
+                    borderColor: 'purple',
+                    backgroundColor: 'rgba(47, 47, 47, 0.2)',
+                    pointBackgroundColor: 'purple',
+                    pointBorderColor: '#fff',
+                    pointBorderWidth: 1,
+                    pointRadius: 5,
+                    pointHoverRadius: 8
+                }
+            ]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: false,
+                        ticks: {
+                            font: {
+                                family: 'Roboto',
+                                size: 14
+                            }
+                        }
+                    },
+                    x: {
+                        ticks: {
+                            font: {
+                                family: 'Roboto',
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                plugins: {
+                    legend: {
+                        labels: {
+                            font: {
+                                family: 'Roboto',
+                                size: 14
+                            }
+                        }
+                    }
+                },
+                responsive: true,
+                maintainAspectRatio: true
+            }
+        });
+
+
+        // ###### CONTRIBUTIONS BAR CHART #########
+        const contribs_ctx = document.getElementById('contribs');
+
+        new Chart(contribs_ctx, {
+            plugins: [ChartDataLabels],
+            type: 'bar',
+            data: {
+                labels: [{% for item in content.contributors %}
+                    "{{item}}",
+                    {% endfor %}],
+                datasets: [{
+                    label: 'Contribution to P&L',
+                    data: [{% for item in content.contributions %}
+                        "{{item}}",
+                        {% endfor %}],
+                    backgroundColor: function(context) {
+                        var value = context.dataset.data[context.dataIndex];
+                        return value < 0 ? '#FA5F55' : '#00A36C'; // Set red color for negative values
+                    },
+                    hoverOffset: 4
+                }
+            ]
+            },
+            options: {
+                    plugins: {
+                        datalabels: {
+                            color: '#36454F',
+                            font: {
+                            weight: 'bold'
+                            },
+                            formatter: function(value, context) {
+                                return (value / 1000).toFixed(1) + 'k';
+                            }
+                        }
+                    }
+                }
+
+        });
+
+
+
+        // ###### PORTFOLIO TODAY BAR CHART #########
+        const ptf_today_ctx = document.getElementById('ptf_today');
+
+        new Chart(ptf_today_ctx, {
+            plugins: [ChartDataLabels],
+            type: 'bar',
+            data: {
+                labels: [{% for item in content.assets_today %}
+                    "{{item}}",
+                    {% endfor %}],
+                datasets: [{
+                    label: 'Asset Weight',
+                    data: [{% for item in content.assets_weight_today %}
+                        "{{item}}",
+                        {% endfor %}],
+                        backgroundColor: [
+                            '#800080'
+                        ],
+                    hoverOffset: 4
+                }
+            ]
+            },
+            options: {
+                    plugins: {
+                        datalabels: {
+                            color: '#fff',
+                            font: {
+                            weight: 'bold'
+                            },
+                            formatter: function(value, context) {
+                                return (value * 100).toFixed(1) + '%';
+                            }
+                        }
+                    }
+                }
+
+        });
+
+
+        // ###### AA EVOL CHART #########
+
+        // ###### AA EVOL CHART #########
+
+        // ###### AA EVOL CHART #########
+
+        // ###### AA EVOL CHART #########
+
+
+
+
+    </script>
+
+{% endblock %}
+

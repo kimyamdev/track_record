@@ -1,0 +1,115 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<head>
+    <title>Wealth Coaching Report Generator</title>
+    <style>
+        form {
+            width: 500px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+        }
+        label {
+            display: block;
+            margin-bottom: 10px;
+            font-size: 16px;
+            font-weight: bold;
+        }
+        input[type="text"],
+        input[type="email"],
+        textarea {
+            width: 95%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        select {
+            width: 100%;
+            padding: 10px;
+            margin-bottom: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        textarea {
+            height: 200px;
+        }
+        input[type="submit"] {
+            width: 100%;
+            padding: 10px;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+        }
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            margin-top: 50px;
+        }
+        .block {
+            width: 30%;
+            background-color: #fff;
+            border-radius: 5px;
+            box-shadow: 0px 0px 10px rgba(0,0,0,0.2);
+            padding: 20px;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .block h2 {
+            font-size: 24px;
+            margin-bottom: 20px;
+        }
+        .block p {
+            font-size: 16px;
+            line-height: 1.5;
+        }
+    </style>
+</head>
+<body>
+    <h1>Generate portfolio data report.</h1>
+    <form action="/read_report" method="POST">
+        <label for="url">Enter the URL of your Google Spreadsheet:</label>
+        <input type="text" id="url" name="url" required>
+        <label for="email">Enter your email address to receive the report:</label>
+        <input type="email" id="email" name="email" required>
+        <label for="portfolio-name">Enter a portfolio name:</label>
+        <input type="text" id="portfolio-name" name="portfolio-name" required>
+        <label for="portfolio-type">Portfolio Type:</label>
+        <select id="portfolio-type" name="portfolio-type">
+            <option value="art">Collectibles Portfolio</option>
+            <option value="venture">Venture Portfolio</option>
+            <option value="stocks">Stocks & ETFs Portfolio</option>
+            <option value="crypto">Crypto Portfolio</option>
+            <option value="holistic">Holistic Wealth</option>
+		</select> <br>
+        <label for="comments">Comments:</label>
+        <textarea id="comments" name="comments" style="height:200px"></textarea> <br>
+        <input type="submit" value="Generate Report">
+    </form>
+    
+    <!-- <div class="container">
+		<div class="block">
+			<h2>Share Your Spreadsheet</h2>
+			<p>Get started by sharing your Google Spreadsheet url (must follow our template).</p>
+		</div>
+		<div class="block">
+			<h2>Get Your Personalised Wealth Coaching Report</h2>
+			<p>Our wealth visualization tool will analyze your data and provide you with a comprehensive report.</p>
+		</div>
+		<div class="block">
+			<h2>Maintain and Repeat</h2>
+			<p>By regularly updating your spreadsheet and generating new reports, you can track your financial progress over time and make informed decisions about your future.</p>
+        </div>
+        </div> -->
+</body>
+{% endblock %}

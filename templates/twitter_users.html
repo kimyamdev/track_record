@@ -1,0 +1,93 @@
+{% extends 'base.html' %}
+
+{% block content %}
+
+<head>
+	<title>Twitter Summary Generator</title>
+	<style>
+		.form-container {
+			width: 400px;
+			margin: 0 auto;
+			padding: 20px;
+			background-color: #f8f8f8;
+			border-radius: 5px;
+		}
+		.input-label {
+			display: block;
+			margin-bottom: 10px;
+		}
+		.input-field {
+			width: 100%;
+			padding: 5px;
+			margin-bottom: 10px;
+		}
+		.submit-button {
+			width: 100%;
+			padding: 10px;
+			background-color: #007bff;
+			color: #fff;
+			border: none;
+			border-radius: 5px;
+			cursor: pointer;
+		}
+		.output-container {
+			margin-top: 20px;
+		}
+		.user-title {
+			font-size: 24px;
+			margin-bottom: 10px;
+		}
+		.cluster-title {
+			font-size: 18px;
+			margin-bottom: 5px;
+		}
+		.tweet-link {
+			color: #007bff;
+			text-decoration: none;
+		}
+		.tweet-text {
+			margin-bottom: 10px;
+		}
+	</style>
+</head>
+<body>
+	<div class="form-container">
+		<h1>Twitter Screener by User</h1>
+		<form action="/twitter_user_screening" method="POST">
+			<label class="input-label" for="twitter_user">Twitter User:</label>
+			<input class="input-field" type="text" id="twitter_user" name="twitter_user">
+			<label class="input-label" for="num_tweets">Number of tweets:</label>
+			<input class="input-field" type="text" id="num_tweets" name="num_tweets">
+			<label class="input-label" for="num_clusters">Number of clusters:</label>
+			<input class="input-field" type="text" id="num_clusters" name="num_clusters">
+			<button class="submit-button" type="submit">Generate Topic Summary</button>
+		</form>
+	</div>
+	<div class="output-container">
+		{% if topic != False %}
+		{% if clusters %}
+		<h1 class="user-title">User searched: {{user}}</h1>
+		<h2 class="cluster-title">Grouping tweets in {{num_clusters}} clusters</h2>
+		{% for label, tweets in clusters.items() %}
+		<h3 class="cluster-title">Cluster {{ label }}</h3>
+		{% for url, text in tweets %}
+		<p><a class="tweet-link" href="{{url}}" target="_blank">{{url}}</a> : <span class="tweet-text">{{text}}</span></p>
+		{% endfor %}
+		{% endfor %}
+
+
+
+		<h2 class="cluster-title">Summarizing tweets</h2>
+
+			{{user_output.summary_user_tweets}}
+			
+			
+			
+			
+			
+			
+			{% endif %}
+			{% endif %}
+	</div>
+</body>
+{% endblock %}
