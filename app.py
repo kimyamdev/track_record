@@ -21,8 +21,8 @@ from test_gmail_api import send
 import json
 
 # import functions
-from functions import get_tx_spreadsheet_data, generate_nav_chart_image, \
-    get_custom_px_spreadsheet_data, units_history, get_NAV, send_email
+from functions import get_spreadsheet_data_into_a_df, generate_nav_chart_image, \
+units_history, get_NAV, send_email
 from historical_positions import historical_portfolio
 
 # import charts
@@ -39,11 +39,11 @@ def generate_report():
     spreadsheet_url = request.form['url']
 
     # Get the tx data from the spreadsheet
-    tx_df = get_tx_spreadsheet_data(spreadsheet_url)
+    tx_df = get_spreadsheet_data_into_a_df(spreadsheet_url, sheet_name="Transaction_History")
     print(tx_df)
 
     # Get the custom asset prices data from the spreadsheet
-    custom_prices_df = get_custom_px_spreadsheet_data(spreadsheet_url)
+    custom_prices_df = get_spreadsheet_data_into_a_df(spreadsheet_url, sheet_name="Custom_Prices")
     print(custom_prices_df)
 
     # Set report date range

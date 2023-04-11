@@ -31,10 +31,12 @@ asset_universe = {
     "GROW.L": {"Ccy": "GBPSGD=X", "Class": "Investment", "Name": "Molten Ventures Plc"},
     "AT1.L": {"Ccy": "USDSGD=X", "Class": "Investment", "Name": "Invesco AT1 Capital Bond ETF"},
     "BIRD": {"Ccy": "USDSGD=X", "Class": "Investment", "Name": "Allbirds"},
+    "DLO": {"Ccy": "USDSGD=X", "Class": "Investment", "Name": "Dlocal"},
     "VET": {"Ccy": "USDSGD=X", "Class": "Investment", "Name": "Vermilon Energy"},
     "ARCH": {"Ccy": "USDSGD=X", "Class": "Investment", "Name": "Arch Resources"},
     "Venture_asset_1": {"Ccy": "USDSGD=X", "Class": "Venture", "Name": "Venture_asset_1"},
-    "Venture_asset_2": {"Ccy": "USDSGD=X", "Class": "Venture", "Name": "Venture_asset_2"}
+    "Venture_asset_2": {"Ccy": "USDSGD=X", "Class": "Venture", "Name": "Venture_asset_2"},
+    "SHOP": {"Ccy": "USDSGD=X", "Class": "Investment", "Name": "Shopify"},
 }
 
 ### EXTRACTING THE LIST OF INVESTMENTS IN ASSET UNIVERSE

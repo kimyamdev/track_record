@@ -47,33 +47,19 @@ if not creds or not creds.valid:
     with open('token.json', 'w') as token:
         token.write(creds.to_json())
 
-def get_tx_spreadsheet_data(spreadsheet_url):
+def get_spreadsheet_data_into_a_df(spreadsheet_url, sheet_name):
 
     service = googleapiclient.discovery.build('sheets', 'v4', credentials=creds)
     # Get the spreadsheet ID from the URL
     spreadsheet_id = spreadsheet_url.split('/')[-2]
     # Get the data from the first sheet
-    sheet_name = 'Transaction_History'
     sheet = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=sheet_name).execute()
     # Convert the data to a Pandas DataFrame
     values = sheet.get('values', [])
-    tx_df = pd.DataFrame(values[1:], columns=values[0])
+    df = pd.DataFrame(values[1:], columns=values[0])
 
-    return tx_df
+    return df
 
-def get_custom_px_spreadsheet_data(spreadsheet_url):
-
-    service = googleapiclient.discovery.build('sheets', 'v4', credentials=creds)
-    # Get the spreadsheet ID from the URL
-    spreadsheet_id = spreadsheet_url.split('/')[-2]
-    # Get the data from the first sheet
-    sheet_name = 'Custom_Prices'
-    sheet = service.spreadsheets().values().get(spreadsheetId=spreadsheet_id, range=sheet_name).execute()
-    # Convert the data to a Pandas DataFrame
-    values = sheet.get('values', [])
-    custom_px_df = pd.DataFrame(values[1:], columns=values[0])
-
-    return custom_px_df
 
 def units_history(tx_df, date_range, hist_ptf_df):
     units_summary_df = units_summary(tx_df, date_range, hist_ptf_df)
